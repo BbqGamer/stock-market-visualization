@@ -1,5 +1,5 @@
-# sock-market-visualization
-Poznan University of Technology project for Data Visualization class under supervision of Dariusz Brzeziński. \
+# Stock-market-visualization
+Poznań University of Technology project for Data Visualization class under supervision of Dariusz Brzeziński.
 ## Authors:
 - Adam Korba
 - Krzysztof Szała
@@ -10,9 +10,4 @@ Sectors and market cap scraped from: https://disfold.com/united-states/companies
 
 
 ## Live demo
-Link to the demo: https://adamkorba.shinyapps.io/stock-market-visualization/ \
-Deploy using:
-```{r}
-library(rsconnect)
-rsconnect::deployApp('.')
-```
+Link to the demo: https://adamkorba.shinyapps.io/stock-market-visualization/
