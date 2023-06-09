@@ -39,11 +39,13 @@ ui <- dashboardPage(
       tabItem(
         tabName = "general_dashboard",
         fluidRow(
-          box(plotOutput("plot1", height = 250)),
-          box(
-            title = "Controls",
-            sliderInput("slider", "Number of observations:", 1, 100, 50),
-          ),
+          valueBoxOutput("num_companies"),
+          valueBoxOutput("total_market_cap"),
+          valueBoxOutput("number_of_sectors"),
+        ),
+        fluidRow(
+          plotlyOutput("sector_plot"),
+          DT::dataTableOutput("sector_table"),
         )
       ),
 
