@@ -42,7 +42,13 @@ ui <- dashboardPage(
           box(plotOutput("plot1", height = 250)),
           box(
             title = "Controls",
-            sliderInput("slider", "Number of observations:", 1, 100, 50),
+            sliderInput(
+              inputId = "slider",
+              label = "Number of observations:",
+              min = 1,
+              max = 5,
+              value = 5
+            )
           ),
         )
       ),
@@ -57,11 +63,47 @@ ui <- dashboardPage(
             sliderInput("slider", "Number of observations:", 1, 100, 50)
           )
         ),
+        fluidRow(
+          column(width = 1),
+          column(width = 3,
+                 selectInput(
+                   "ticker",
+                   "Select an option:",
+                   choices = NULL
+                 )
+          )
+        ),
+        fluidRow(
+          # Time range
+          radioButtons(
+            inputId = "period", 
+            label   = h4("Period"),
+            choices = list("1 month" = 1, "3 months" = 2, "6 months" = 3, "12      months" = 4, "YTD" = 5), 
+            selected = 4
+          ),
+          # Benchmark
+          radioButtons(
+            inputId  = "benchmark", 
+            label    = h4("Benchmark"),
+            choices  = list("SP500" = 1, "Nasdaq100" = 2,"None" = 3),
+            selected = 3)
+        ),
+        fluidRow(
+          DT::dataTableOutput("ChoosingCompanytable")
+        )
+
       ),
 
       # third tab content
       tabItem(
-        tabName = "stock_comparison"
+        tabName = "stock_comparison",
+        fluidRow(
+          DT::dataTableOutput("CompTable")
+        ),
+        verbatimTextOutput("selectedRows"),
+        fluidRow(
+          plotlyOutput("compBarChart")
+        )
       ),
 
       # fourth tab content
