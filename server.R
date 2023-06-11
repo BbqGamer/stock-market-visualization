@@ -4,6 +4,7 @@ library(shiny)
 library(plotly)
 library(ggplot2)
 library(dplyr)
+library(flexdashboard)
 
 server <- function(input, output) {
 
@@ -48,7 +49,7 @@ server <- function(input, output) {
   output$num_companies <- renderValueBox({
     n_companies <- companies %>% nrow()
 
-    valueBox(
+    shinydashboard::valueBox(
       value = n_companies,
       subtitle = "Number of companies in the dataset",
       icon = icon("users"),
@@ -56,10 +57,62 @@ server <- function(input, output) {
     )
   })
 
+  # Remove sollar sign from the market cap column
+  market_cap <- sapply(companies$market_cap, function(x) {
+    # Remove dollar sign and extract numeric value
+    value <- as.numeric(gsub("[^0-9.]", "", x))
+    if (grepl("M", x)) {
+      value <- value * 1e6
+    }
+    if (grepl("B", x)) {
+      value <- value * 1e9
+    }
+    if (grepl("T", x)) {
+      value <- value * 1e12
+    }
+    return(value)
+  })
+
+  # Round total to two decimal places
+  total <- round(sum(market_cap) / 1e12, 2)
+
   output$total_market_cap <- renderValueBox({
-    # Remove sollar sign from the market cap column
-    market_cap <- sapply(companies$market_cap, function(x) {
-      # Remove dollar sign and extract numeric value
+    shinydashboard::valueBox(
+      value = paste0(total, "T"),
+      subtitle = "Total market capitalization of companies in dataset",
+      icon = icon("money-bill-wave"),
+      color = "blue"
+    )
+  })
+
+  output$number_of_sectors <- renderValueBox({
+    n_sectors <- companies %>% distinct(sector) %>% nrow()
+
+    shinydashboard::valueBox(
+      value = n_sectors,
+      subtitle = "Number of sectors in the dataset",
+      icon = icon("building"),
+      color = "yellow"
+    )
+  })
+
+  output$sector_name <- renderText({
+    selected_sector <- toString(event_data("plotly_click")["x"])
+    if (selected_sector == "") {
+      "All sectors"
+    } else {
+      selected_sector
+    }
+  })
+
+  output$gauge <- renderGauge({
+    selected_sector <- toString(event_data("plotly_click")["x"])
+    if (selected_sector == "") {
+      selected_companies <- companies
+    } else {
+      selected_companies <- companies[companies$sector == selected_sector, ]
+    }
+    selected_cap <- sapply(selected_companies$market_cap, function(x) {
       value <- as.numeric(gsub("[^0-9.]", "", x))
       if (grepl("M", x)) {
         value <- value * 1e6
@@ -73,25 +126,13 @@ server <- function(input, output) {
       return(value)
     })
 
-    # Round total to two decimal places
-    total <- round(sum(market_cap) / 1e12, 2)
-
-    valueBox(
-      value = paste0(total, "T"),
-      subtitle = "Total market capitalization of companies in dataset",
-      icon = icon("money-bill-wave"),
-      color = "blue"
-    )
-  })
-
-  output$number_of_sectors <- renderValueBox({
-    n_sectors <- companies %>% distinct(sector) %>% nrow()
-
-    valueBox(
-      value = n_sectors,
-      subtitle = "Number of sectors in the dataset",
-      icon = icon("building"),
-      color = "yellow"
+    total_cap_selected <- round(sum(selected_cap) / 1e12, 2)
+    gauge(
+      total_cap_selected,
+      min = 0,
+      max = total,
+      symbol = "T",
+      label = paste0("Total market capitalization of companies in dataset:")
     )
   })
 }

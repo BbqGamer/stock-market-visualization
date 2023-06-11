@@ -1,6 +1,7 @@
 library(shiny)
 library(shinydashboard)
 library(plotly)
+library(flexdashboard)
 
 ui <- dashboardPage(
   skin = "black",
@@ -32,24 +33,39 @@ ui <- dashboardPage(
   # ---------------------------------------
   ## Body content
   dashboardBody(
-    tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
-    ),
+    includeCSS("www/custom.css"),
     tabItems(
       # First tab content
       tabItem(
         tabName = "general_dashboard",
         fluidRow(
-          valueBoxOutput("num_companies"),
-          valueBoxOutput("total_market_cap"),
-          valueBoxOutput("number_of_sectors"),
+          flexdashboard::valueBoxOutput("num_companies"),
+          flexdashboard::valueBoxOutput("total_market_cap"),
+          flexdashboard::valueBoxOutput("number_of_sectors"),
         ),
         fluidRow(
-          plotlyOutput("sector_plot"),
-          DT::dataTableOutput("sector_table"),
-        )
+          column(
+            width = 10,
+            plotlyOutput("sector_plot")
+          ),
+          column(
+            width = 2,
+            align = "center",
+            div(style = "display: flex; 
+                         flex-direction: column;",
+                list(
+                  h4("Capitalization of companies in the selected sector"),
+                  flexdashboard::gaugeOutput("gauge", height = 200),
+                  h3("Selected sector:"),
+                  textOutput("sector_name")
+                )
+            )
+          )
+        ),
+        fluidRow(
+          DT::dataTableOutput("sector_table")
+        ),
       ),
-
       # Second tab content
       tabItem(
         tabName = "company_dashboard",
@@ -70,6 +86,27 @@ ui <- dashboardPage(
       # fourth tab content
       tabItem(
         tabName = "help",
+        fluidPage(
+          h1("Help"),
+          h2("How to use this app"),
+          p("This app is divided into three section:"),
+          h3("General Stock Market"),
+          p("This tab contains general information about the stock market."),
+          p("The first row contains three value boxes with information about the number of companies in the dataset, total market capitalization of companies in the dataset and number of sectors in the dataset."),
+          p("The second row contains a plot with the number of companies in each sector. The plot is interactive, so you can click on a bar to see the companies in the selected sector in the table on the right."),
+          p("The third row contains a table with companies in the selected sector."),
+          h3("Company Analysis"),
+          p("This tab contains information about companies."),
+          h3("Stock Comparison"),
+          p("This tab contains information about stock comparison."),
+          h3("Data sources"),
+          a(href = "https://www.kaggle.com/datasets/borismarjanovic/price-volume-data-for-all-us-stocks-etfs",
+            "Kaggle Huge Stock Market Dataset"),
+          br(),
+          a(href = "https://disfold.com/united-states/companies/",
+            "Information about sectors and market cap scraped from Disfold"),
+        ),
+        img(src = "dataset-cover.jpg"),
       )
     ),
   )
