@@ -72,8 +72,7 @@ server <- function(input, output, session) {
   spx500    <- data.frame(read.csv("data/spx_d.csv")) 
   nasdaq100$Date <- as.Date(nasdaq100$Date)
   spx500$Date <- as.Date(spx500$Date)
-  # class(nasdaq100$Date)
-  # class(data_companies$aapl$Date)
+
   
   updateSelectInput(session, "ticker", choices = companies$stock)
 
@@ -183,7 +182,7 @@ server <- function(input, output, session) {
       fig
     })
     
-    # -----------------------------candleStick---------------------------------------
+    
     
     output$description <- renderPrint({
       cat(paste("Company name:", selected_row$company_name, "\n",
@@ -195,7 +194,10 @@ server <- function(input, output, session) {
     
   })
   
-  # table #3page
+  # -----------------------------candleStick---------------------------------------
+  
+  # Multiselecting table
+  
   output$CompTable <- DT::renderDataTable({
     companies
     
@@ -214,6 +216,8 @@ server <- function(input, output, session) {
       )
     )
   })
+  
+  # Bar Plot - with selecting companies
   
   observeEvent(input$CompTable_rows_selected, {
     selected_indices <- input$CompTable_rows_selected
@@ -234,20 +238,6 @@ server <- function(input, output, session) {
   })
   
   # -----------------------benchmark scatter plot -----------------------
-  company_choices <- names(data_companies)
-  observe({
-    updateSelectInput(session, "company_name", choices = company_choices)
-  })
-  
-  # stock_list <- reactive({
-  #   names(data_companies)
-  # })
-  # 
-  
-  # # Filter the data frames to keep only the rows with common dates
-  # spx500 <- filter_common_dates(nasdaq100, data_companies$aapl, spx500)
-  # nasdaq100 <- filter_common_dates(spx500, data_companies$aapl, nasdaq100)
-  # filtered_date_company <- filter_common_dates(spx500, nasdaq100, data_companies$aapl)
   
   company_data <- list(
     'Stock' = c(),
@@ -353,38 +343,37 @@ server <- function(input, output, session) {
     output$stock_plot <- renderPlotly({ plot_data })
   }
   # -----------------------benchmark scatter plot -----------------------
-
   
-  # Add button event
-  observeEvent(input$add_button, {
-    company_name <- input$company_name
-    # stock_data <- input$stock_data
-    
-    if (company_name != "" ) { # && !is.na(stock_data)
-      company_data[[company_name]] <<- company_data2[[company_name]]
-      update_plot()
-      
-      # Reset input values
-      updateSelectInput(session, 'company_name', selected = "")
-      # updateNumericInput(session, 'stock_data', value = NA)
-    }
+  # Comparing sectors/industries
+  
+  output$stacked_bar_plot <- renderPlotly({
+    plot_ly(data(), x = ~companies[[input$group_by]], y = ~companies$market_cap, color = ~companies$company_name, type = "bar", #  marker = list(color = ~companies[[input$group_by]], colorscale = "Viridis", autocolorscale = FALSE))
+      hovertemplate = ~companies$company_name) %>%
+      layout(
+        title = "",
+        xaxis = list(title = input$group_by),
+        yaxis = list(title = "Market cap sum"),
+        barmode = "stack"
+      )
   })
   
-  # Delete button event
-  observeEvent(input$delete_button, {
-    company_name <- input$company_name
-    
-    if (company_name != "") {
-      company_data[[company_name]] <- NULL
-      company_data <<- company_data  # Use <<- to update the global variable
-      update_plot()
+  data <- reactive({
+    if (input$group_by == "sector") {
+      df <- companies %>%
+        group_by(sector) %>%
+        summarize(n = n()) %>%
+        mutate(prop = n / sum(n))
       
-      # Reset input value
-      updateSelectInput(session, 'company_name', selected = "")
+      companies <- companies %>% arrange(sector)
+    } else {
+      df <- companies %>% 
+        group_by(industry) %>%
+        summarize(n = n()) %>%
+        mutate(prop = n / sum(n)) 
+      
+      companies <- companies %>% arrange(industry)
     }
+    df
   })
   
-  # TEXTS
-  
-
 }

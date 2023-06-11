@@ -53,44 +53,6 @@ ui <- dashboardPage(
           ),
         )
       ),
-
-
-        
-        #---------------beuzyteczne---------------------
-        
-        # h2("Widgets tab content"),
-        # fluidRow(
-        #   box(
-        #     title = "Controls",
-        #     sliderInput("slider", "Number of observations:", 1, 100, 50)
-        #   )
-        # ),
-        # fluidRow(
-        #   column(width = 1),
-        #   column(width = 3,
-        #          selectInput(
-        #            "ticker",
-        #            "Select an option:",
-        #            choices = NULL
-        #          )
-        #   )
-        # ),
-        
-        #---------------beuzyteczne---------------------
-        
-        #---------------moze zyteczne---------------------
-        
-        # fluidRow(
-        #   # Time range
-        #   radioButtons(
-        #     inputId = "period", 
-        #     label   = h4("Period"),
-        #     choices = list("1 month" = 1, "3 months" = 2, "6 months" = 3, "12 months" = 4, "YTD" = 5), 
-        #     selected = 4
-        #   ),
-        #   # Benchmark
-        
-        #---------------moze zyteczne---------------------
       
       tabItem(
         tabName = "company_dashboard",
@@ -185,18 +147,45 @@ ui <- dashboardPage(
       tabItem(
         tabName = "stock_comparison",
         fluidRow(
-          DT::dataTableOutput("CompTable")
+          offset = 1,
+          h2("Compare market capitalization"),          
         ),
         fluidRow(
-          verbatimTextOutput("selectedRows"),
-          plotlyOutput("compBarChart")
+          width = 12,
+          box(
+            width = 12,
+            DT::dataTableOutput("CompTable")
+          )
+        ),
+        fluidRow(
+          box(
+            width = 12,
+            verbatimTextOutput("selectedRows"),
+            plotlyOutput("compBarChart")
+          )
+        ),
+        fluidRow(
+          offset = 1,
+          h2("Compare industries/sectors")
+        ),
+        fluidRow(
+          column(
+            width = 2,
+            selectInput("group_by", "Group By", choices = c("sector", "industry"), selected = "sector")
+          ),
+          column(
+            width = 10,
+            box(
+              width = 12,
+              plotlyOutput("stacked_bar_plot")
+            )
+          )
         )
       ),
 
       # fourth tab content
       tabItem(
         tabName = "help",
-        selectInput("company_name", "Select a company:", choices = c("")),
         # sidebarLayout(
         #   sidebarPanel(
         #     selectInput("company_name", "Select to add/delete", choices = c("")),
