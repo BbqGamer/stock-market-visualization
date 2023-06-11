@@ -1,6 +1,7 @@
 library(shiny)
 library(shinydashboard)
 library(plotly)
+library(flexdashboard)
 
 ui <- dashboardPage(
   skin = "black",
@@ -32,24 +33,39 @@ ui <- dashboardPage(
   # ---------------------------------------
   ## Body content
   dashboardBody(
-    tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
-    ),
+    includeCSS("www/custom.css"),
     tabItems(
       # First tab content
       tabItem(
         tabName = "general_dashboard",
         fluidRow(
-          valueBoxOutput("num_companies"),
-          valueBoxOutput("total_market_cap"),
-          valueBoxOutput("number_of_sectors"),
+          flexdashboard::valueBoxOutput("num_companies"),
+          flexdashboard::valueBoxOutput("total_market_cap"),
+          flexdashboard::valueBoxOutput("number_of_sectors"),
         ),
         fluidRow(
-          plotlyOutput("sector_plot"),
-          DT::dataTableOutput("sector_table"),
-        )
+          column(
+            width = 10,
+            plotlyOutput("sector_plot")
+          ),
+          column(
+            width = 2,
+            align = "center",
+            div(style = "display: flex; 
+                         flex-direction: column;",
+                list(
+                  h4("Capitalization of companies in the selected sector"),
+                  flexdashboard::gaugeOutput("gauge", height = 200),
+                  h3("Selected sector:"),
+                  textOutput("sector_name")
+                )
+            )
+          )
+        ),
+        fluidRow(
+          DT::dataTableOutput("sector_table")
+        ),
       ),
-
       # Second tab content
       tabItem(
         tabName = "company_dashboard",
