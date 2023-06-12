@@ -4,6 +4,8 @@ library(shiny)
 library(plotly)
 library(ggplot2)
 library(DT)
+library(dplyr)
+library(flexdashboard)
 
 # functions
 
@@ -61,6 +63,7 @@ server <- function(input, output, session) {
       }
     }
   }
+# <<<<<<< HEAD
   
   # widget z wyborem firmy 2page
   companies <- data.frame(read.csv("data/companies.csv"))
@@ -376,4 +379,95 @@ server <- function(input, output, session) {
     df
   })
   
+
+# =======
+
+  sector_counts <- table(companies$sector)
+
+  output$sector_plot <- renderPlotly({
+    plot_ly(
+      x = names(sector_counts),
+      y = sector_counts,
+      type = "bar"
+    ) %>%
+      layout(
+        title = "Number of companies in each sector (click on bar to see companies)",
+        xaxis = list(title = "Sector", categoryorder = "total descending"),
+        yaxis = list(title = "Count"),
+        bargap = 0.1
+      )
+  })
+
+  output$sector_table <- DT::renderDataTable({
+    # Select only the rows with the selected sector
+    selected_sector <- toString(event_data("plotly_click")["x"])
+    selected_companies <- companies[companies$sector == selected_sector, ]
+
+    selected_companies[, c("company_name",
+                  "market_capitalization",
+                  "stock",
+                  "sector",
+                  "industry")]
+  })
+
+  output$num_companies <- renderValueBox({
+    n_companies <- companies %>% nrow()
+
+    shinydashboard::valueBox(
+      value = n_companies,
+      subtitle = "Number of companies in the dataset",
+      icon = icon("users"),
+      color = "green"
+    )
+  })
+
+  # Round total to two decimal places
+  total <- round(sum(companies$market_cap) / 1e12, 2)
+
+  output$total_market_cap <- renderValueBox({
+    shinydashboard::valueBox(
+      value = paste0(total, "T"),
+      subtitle = "Total market capitalization of companies in dataset",
+      icon = icon("money-bill-wave"),
+      color = "blue"
+    )
+  })
+
+  output$number_of_sectors <- renderValueBox({
+    n_sectors <- companies %>% distinct(sector) %>% nrow()
+
+    shinydashboard::valueBox(
+      value = n_sectors,
+      subtitle = "Number of sectors in the dataset",
+      icon = icon("building"),
+      color = "yellow"
+    )
+  })
+
+  output$sector_name <- renderText({
+    selected_sector <- toString(event_data("plotly_click")["x"])
+    if (selected_sector == "") {
+      "All sectors"
+    } else {
+      selected_sector
+    }
+  })
+
+  output$gauge <- renderGauge({
+    selected_sector <- toString(event_data("plotly_click")["x"])
+    if (selected_sector == "") {
+      selected_companies <- companies
+    } else {
+      selected_companies <- companies[companies$sector == selected_sector, ]
+    }
+
+    total_cap_selected <- round(sum(selected_companies$market_cap) / 1e12, 2)
+    gauge(
+      total_cap_selected,
+      min = 0,
+      max = total,
+      symbol = "T",
+      # label = paste0("Total market capitalization of companies in dataset:")
+    )
+  })
 }
