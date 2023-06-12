@@ -6,27 +6,36 @@ library(flexdashboard)
 ui <- dashboardPage(
   skin = "black",
   # Create dashboard header with image
-  dashboardHeader(title = "Stock market Analysis",
-    tags$li(a(href = "https://put.poznan.pl",
-              img(src = "logo.png",
-                  title = "PUT", height = "30px"),
-              style = "padding-top:10px; padding-bottom:10px;"),
-            class = "dropdown")),
+  dashboardHeader(
+    title = "Stock market Analysis",
+    tags$li(
+      a(
+        href = "https://put.poznan.pl",
+        img(
+          src = "logo.png",
+          title = "PUT", height = "30px"
+        ),
+        style = "padding-top:10px; padding-bottom:10px;"
+      ),
+      class = "dropdown"
+    )
+  ),
 
   ## Sidebar content
   dashboardSidebar(
     sidebarMenu(
       menuItem("General Stock Market",
-        tabName = "general_dashboard", icon = icon("money-bill-trend-up")),
-
+        tabName = "general_dashboard", icon = icon("money-bill-trend-up")
+      ),
       menuItem("Company Analysis",
-        tabName = "company_dashboard", icon = icon("building-user")),
-
+        tabName = "company_dashboard", icon = icon("building-user")
+      ),
       menuItem("Stock Comparison",
-        tabName = "stock_comparison", icon = icon("code-compare")),
-
+        tabName = "stock_comparison", icon = icon("code-compare")
+      ),
       menuItem("Help",
-        tabName = "help", icon = icon("circle-info"))
+        tabName = "help", icon = icon("circle-info")
+      )
     )
   ),
 
@@ -51,14 +60,15 @@ ui <- dashboardPage(
           column(
             width = 2,
             align = "center",
-            div(style = "display: flex; 
+            div(
+              style = "display: flex;
                          flex-direction: column;",
-                list(
-                  h4("Capitalization of companies in the selected sector"),
-                  flexdashboard::gaugeOutput("gauge", height = 200),
-                  h3("Selected sector:"),
-                  textOutput("sector_name")
-                )
+              list(
+                h4("Capitalization of companies in the selected sector"),
+                flexdashboard::gaugeOutput("gauge", height = 200),
+                h3("Selected sector:"),
+                textOutput("sector_name")
+              )
             )
           )
         ),
@@ -68,58 +78,56 @@ ui <- dashboardPage(
       ),
       tabItem(
         tabName = "company_dashboard",
-            fluidRow(
-              column(
-                width = 12,
-                h2("Stock Price over time")
-              )
-            ),
-            fluidRow(
-              column(
-                width = 4,
-                DT::dataTableOutput("ChoosingCompanytable")
-              ),
-              column(
-                width = 8,
-                plotlyOutput("candlePlot")
-              )
-            ),
-            fluidRow(
-              column(
-                width = 8,
-                h2("Stock Price with benchmarks"),
-                plotlyOutput("stock_plot")
-              ),
-              column(
-                width = 4,
-                h3("Stock description"),
-                verbatimTextOutput("description"),
-                radioButtons(
-                  inputId  = "price_type",
-                  label    = h4("Price type:"),
-                  choices  = list("Open", "High","Low", "Close"),
-                  selected = "Open")
-                )
-              )
+        fluidRow(
+          column(
+            width = 12,
+            h2("Stock Price over time")
+          )
+        ),
+        fluidRow(
+          column(
+            width = 4,
+            DT::dataTableOutput("ChoosingCompanytable")
+          ),
+          column(
+            width = 8,
+            plotlyOutput("candlePlot")
+          )
+        ),
+        fluidRow(
+          column(
+            width = 8,
+            h2("Stock Price with benchmarks"),
+            plotlyOutput("stock_plot")
+          ),
+          column(
+            width = 4,
+            h3("Stock description"),
+            verbatimTextOutput("description"),
+            radioButtons(
+              inputId  = "price_type",
+              label    = h4("Price type:"),
+              choices  = list("Open", "High", "Low", "Close"),
+              selected = "Open"
+            )
+          )
+        )
       ),
-      
       # third tab content
       tabItem(
         tabName = "stock_comparison",
         fluidRow(
           offset = 1,
-          h2("Compare market capitalization"),          
+          h2("Compare market capitalization"),
         ),
         fluidRow(
           width = 12,
           box(
-            width = 12,
+            width = 6,
             DT::dataTableOutput("CompTable")
-          )
-        ),
-        fluidRow(
+          ),
           box(
-            width = 12,
+            width = 6,
             verbatimTextOutput("selectedRows"),
             plotlyOutput("compBarChart")
           )
@@ -170,12 +178,16 @@ ui <- dashboardPage(
           p("You can also make some companies disappear what would decrease the stack. e.g. Technology sector without apple and microsoft is smaller by market cap by most of the sectors"),
           p("Except of that you can hover stacks with mouse to see which companies created it."),
           p("Of course, you can change the plot to compare industries/sectors by choosing one of them from dropdown list on the left."),
-             h3("Data sources"),
-          a(href = "https://www.kaggle.com/datasets/borismarjanovic/price-volume-data-for-all-us-stocks-etfs",
-            "Kaggle Huge Stock Market Dataset"),
+          h3("Data sources"),
+          a(
+            href = "https://www.kaggle.com/datasets/borismarjanovic/price-volume-data-for-all-us-stocks-etfs",
+            "Kaggle Huge Stock Market Dataset"
+          ),
           br(),
-          a(href = "https://disfold.com/united-states/companies/",
-            "Information about sectors and market cap scraped from Disfold"),
+          a(
+            href = "https://disfold.com/united-states/companies/",
+            "Information about sectors and market cap scraped from Disfold"
+          ),
           br(),
           a(href = "https://stooq.com/q/d/?s=^ndx", "NASDAQ100"),
           br(),
