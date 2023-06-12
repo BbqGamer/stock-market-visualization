@@ -123,11 +123,14 @@ ui <- dashboardPage(
         fluidRow(
           width = 12,
           box(
-            width = 6,
+            width = 12,
             DT::dataTableOutput("CompTable")
           ),
+        ),
+        fluidRow(
+          width = 12,
           box(
-            width = 6,
+            width = 12,
             verbatimTextOutput("selectedRows"),
             plotlyOutput("compBarChart")
           )
