@@ -1,7 +1,7 @@
 # Stock-market-visualization
 Poznań University of Technology project for Data Visualization class under supervision of Dariusz Brzeziński.
 ## Live demo
-[Click here to see the live demo](https://53hwst-krzychu-sza0a.shinyapps.io/stock-market-visualization/)
+[**Click here to see the live demo**](https://53hwst-krzychu-sza0a.shinyapps.io/stock-market-visualization/)
 
 ## Authors:
 - Adam Korba
